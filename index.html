@@ -1,0 +1,619 @@
+<!DOCTYPE html>  
+<html>  
+<head>  
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">  
+<title>Doken Baki</title>  
+  
+<style>  
+*{box-sizing:border-box;}  
+body{  
+  margin:0;  
+  font-family:sans-serif;  
+  background:#111111; /* Dark background matching image */
+  color:#ffffff;  
+  overflow:hidden;  
+}  
+  
+.app{  
+  height:100vh;  
+  display:flex;  
+  flex-direction:column;  
+}  
+  
+.screen{  
+  display:none;  
+  flex:1;  
+  flex-direction:column;  
+  min-height:0;  
+}  
+  
+.active{display:flex;}  
+  
+.header{  
+  padding:12px;  
+  text-align:center;  
+  background:#111111;  
+  border-bottom:2px solid #ff7300; /* Orange accent border */
+}  
+
+.header h3 {
+  color: #ff7300; /* Orange title */
+  margin: 5px 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+  
+/* HOME STATS */  
+.stats-box{  
+  margin-top:10px;  
+  background:#1c1c1c;  
+  border-radius:12px;  
+  padding:12px;  
+  border:1px solid #333;  
+}  
+  
+.stats-row{  
+  display:flex;  
+  justify-content:space-between;  
+}  
+  
+.stat{  
+  flex:1;  
+  text-align:center;  
+}  
+  
+.stat h2{  
+  margin:0;  
+  font-size:18px;  
+  color: #fff;
+}  
+  
+.stat span{  
+  font-size:12px;  
+  color:#ff7300; /* Orange text for stats label */
+  font-weight: bold;
+}  
+  
+.time{  
+  font-size:22px;  
+  font-weight:bold;  
+  margin-top:6px;  
+}  
+  
+.date{  
+  font-size:12px;  
+  color:#888;  
+}  
+  
+/* DETAILS HEADER UI */  
+.details-box{  
+  margin-top:10px;  
+  background:#1c1c1c;  
+  border-radius:12px;  
+  padding:12px;  
+  border:1px solid #333;  
+}  
+  
+.content{  
+  flex:1;  
+  display:flex;  
+  flex-direction:column;  
+  min-height:0;  
+}  
+  
+#list, #orders{  
+  flex:1;  
+  min-height:0;  
+  overflow-y:auto;  
+  -webkit-overflow-scrolling: touch;  
+}  
+  
+.card{  
+  background:#1c1c1c;  
+  margin:10px;  
+  padding:12px;  
+  border-radius:10px;  
+  display:flex;  
+  justify-content:space-between;  
+  align-items:center;  
+  border-left: 4px solid #ff7300; /* Orange left border like Nike UI cards */
+}  
+  
+.card.selected{  
+  border:2px solid #ff7300; /* Changed selection color to Orange */
+}  
+  
+input{  
+  width:100%;  
+  padding:12px;  
+  margin-top:8px;  
+  border:1px solid #333;  
+  border-radius:8px;  
+  background:#222;  
+  color:#fff;  
+  outline: none;
+}  
+
+input:focus {
+  border-color: #ff7300; /* Orange focus outline */
+}
+  
+.btn{  
+  padding:12px;  
+  background:#ff7300; /* Bright orange button */
+  color:#000; /* Black text for contrast */
+  font-weight: bold;
+  border:none;  
+  border-radius:8px;  
+  width:48%;  
+  cursor: pointer;
+}  
+  
+.btn-group{  
+  display:flex;  
+  justify-content:space-between;  
+  margin-top:10px;  
+}  
+  
+.delete-bar{  
+  position:fixed;  
+  bottom:10px;  
+  left:10px;  
+  right:10px;  
+  display:none;  
+}  
+  
+.delete-bar button{  
+  width:100%;  
+  padding:14px;  
+  background:#d93025;  
+  border:none;  
+  border-radius:8px;  
+  color:#fff;  
+  font-weight: bold;
+}  
+  
+.modal{  
+  position:fixed;  
+  top:0;left:0;  
+  width:100%;  
+  height:100%;  
+  background:rgba(0,0,0,0.8);  
+  display:none;  
+  align-items:center;  
+  justify-content:center;  
+}  
+  
+.modal-content{  
+  background:#111;  
+  border: 1px solid #ff7300;
+  padding:20px;  
+  border-radius:12px;  
+  width:90%;  
+}  
+  
+.avatar{  
+  width:40px;  
+  height:40px;  
+  border-radius:50%;  
+  background:#ff7300; /* Orange avatar */ 
+  color: #000;
+  font-weight: bold;
+  display:flex;  
+  align-items:center;  
+  justify-content:center;  
+  overflow: hidden; /* Added to keep image inside circle */
+}  
+  
+.row{  
+  display:flex;  
+  gap:12px;  
+  align-items:center;  
+}  
+.edit-btn{  
+  background:#000;  
+  color:#ff7300; /* Orange text */ 
+  border:1px solid #ff7300; /* Orange border */
+  border-radius:6px;  
+  padding:6px 10px;  
+  font-size:12px;  
+  cursor:pointer;  
+}  
+
+/* UPDATED ORDER ITEM CSS */
+.order-content{  
+  display:flex;  
+  flex-direction:row; /* Modified to row */
+  align-items:center; /* Centers items vertically */
+  justify-content:space-between;
+  width: 100%; 
+}  
+.order-left{  
+  display:flex;  
+  flex-direction:column;  
+  flex: 1.2;
+}  
+.order-time{  
+  font-size:10px;  
+  color:#aaa;  
+  flex: 1; 
+  text-align: center; /* Centers the time text */
+}
+.order-right{
+  flex: 0.8;
+  display: flex;
+  justify-content: flex-end; /* Pushes Edit button to the right */
+}
+
+/* NEW: Image Upload Styles */
+.img-upload-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+.img-preview {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: #222;
+  border: 1px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  font-size: 12px;
+  overflow: hidden;
+}
+.img-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+input[type="file"] {
+  display: none;
+}
+.upload-btn {
+  background: #000;
+  color: #ff7300;
+  border: 1px solid #ff7300;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+}
+</style>  
+</head>  
+  
+<body>  
+  
+<div class="app">  
+  
+<div id="home" class="screen active">  
+<div class="header">  
+  <h3>DOKEN BAKI</h3>  
+  <div class="stats-box">  
+    <div class="stats-row">  
+      <div class="stat">  
+        <h2 id="totalOrders">0</h2>  
+        <span>Orders</span>  
+      </div>  
+      <div class="stat">  
+        <h2 id="totalMoney">৳0</h2>  
+        <span>Total</span>  
+      </div>  
+    </div>  
+    <div class="time" id="time"></div>  
+    <div class="date" id="date"></div>  
+  </div>  
+</div>  
+  
+<div class="content">  
+<div style="padding:10px;">  
+<input id="search" placeholder="Search..." oninput="render()">  
+<div class="btn-group">  
+  <button class="btn" onclick="openModal()">+ Add Customer</button>  
+</div>  
+</div>  
+<div id="list"></div>  
+</div>  
+</div>  
+  
+<div id="details" class="screen">  
+<div class="header">  
+  <h3 id="cname"></h3>  
+  <button class="edit-btn" onclick="editCustomer()">Edit Name & Photo</button>  
+  <div class="details-box" id="summaryBox"></div>  
+</div>  
+  
+<div class="content">  
+<div style="padding:10px;">  
+<input id="desc" placeholder="Description">  
+<input id="price" type="number" placeholder="Price">  
+<div class="btn-group">  
+  <button class="btn" onclick="addOrder()">Add Order</button>  
+</div>  
+</div>  
+<div id="orders"></div>  
+</div>  
+</div>  
+</div>  
+  
+<div class="delete-bar" id="deleteBar">  
+  <button onclick="deleteSelected()">Delete Selected</button>  
+</div>  
+  
+<div id="modal" class="modal">  
+<div class="modal-content">  
+  <input id="modalName" placeholder="Customer name">  
+  
+  <!-- Image Upload Add Customer -->
+  <div class="img-upload-container">
+    <div class="img-preview" id="addImgPreview">Img</div>
+    <label class="upload-btn">
+      Select Image
+      <input type="file" id="modalImage" accept="image/*" onchange="previewImage(this, 'addImgPreview')">
+    </label>
+  </div>
+
+  <div class="btn-group">  
+    <button class="btn" onclick="addCustomer()">Save</button>  
+    <button class="btn" style="background:#333; color:#fff;" onclick="closeModal()">Cancel</button>  
+  </div>  
+</div>  
+</div>  
+
+<!-- Customer Name & Image Edit Modal -->
+<div id="customerModal" class="modal">  
+<div class="modal-content">  
+  <input id="editCustomerNameInput" placeholder="Customer Name">  
+  
+  <!-- Image Upload Edit Customer -->
+  <div class="img-upload-container">
+    <div class="img-preview" id="editImgPreview">Img</div>
+    <label class="upload-btn">
+      Change Image
+      <input type="file" id="editCustomerImage" accept="image/*" onchange="previewImage(this, 'editImgPreview')">
+    </label>
+  </div>
+
+  <div class="btn-group">  
+    <button class="btn" onclick="saveCustomerEdit()">Save</button>  
+    <button class="btn" style="background:#333; color:#fff;" onclick="closeCustomerModal()">Cancel</button>  
+  </div>  
+</div>  
+</div>
+
+<div id="orderModal" class="modal">  
+<div class="modal-content">  
+  <input id="orderDesc" placeholder="Description">  
+  <input id="orderPrice" type="number" placeholder="Price">  
+  <div class="btn-group">  
+    <button class="btn" onclick="saveOrderEdit()">Save</button>  
+    <button class="btn" style="background:#333; color:#fff;" onclick="closeOrderModal()">Cancel</button>  
+  </div>  
+</div>  
+</div>  
+  
+<script>  
+let db = JSON.parse(localStorage.getItem("db")) || [];  
+let current = null;  
+let editingOrderIndex = null;  
+let selectedCustomers = new Set();  
+let selectedOrders = new Set();  
+let tempImageBase64 = ""; // Variable to hold image data
+
+function updateTime(){  
+  let now = new Date();  
+  document.getElementById("time").innerText = now.toLocaleTimeString();  
+  document.getElementById("date").innerText = now.toDateString();  
+}  
+setInterval(updateTime,1000);  
+updateTime();  
+
+function updateStats(){  
+  let totalOrders = 0;  
+  let totalMoney = 0;  
+  db.forEach(c=>{  
+    totalOrders += c.orders.length;  
+    c.orders.forEach(o=>totalMoney += Number(o.price));  
+  });  
+  document.getElementById("totalOrders").innerText = totalOrders;  
+  document.getElementById("totalMoney").innerText = "৳" + totalMoney;  
+}  
+
+history.replaceState({screen:"home"}, "");  
+window.addEventListener("popstate", function () {  
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));  
+  document.getElementById("home").classList.add("active");  
+  current = null;  
+});  
+
+function show(id){  
+  document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));  
+  document.getElementById(id).classList.add("active");  
+  history.pushState({screen:id}, "");  
+}  
+
+function save(){  
+  localStorage.setItem("db", JSON.stringify(db));  
+  render();  
+  updateStats();  
+}  
+
+function longPress(el, callback){  
+  let timer;  
+  el.addEventListener("touchstart", ()=>{timer = setTimeout(callback,500);});  
+  el.addEventListener("touchend", ()=>clearTimeout(timer));  
+}  
+
+function previewImage(input, previewId) {
+  if (input.files && input.files[0]) {
+    let reader = new FileReader();
+    reader.onload = function(e) {
+      tempImageBase64 = e.target.result;
+      document.getElementById(previewId).innerHTML = `<img src="${tempImageBase64}">`;
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function render(){  
+  let list=document.getElementById("list");  
+  list.innerHTML="";  
+  let search = document.getElementById("search").value.toLowerCase();  
+  db.forEach((c,i)=>{  
+    if(!c.name.toLowerCase().includes(search)) return;  
+    let total = c.orders.reduce((a,b)=>a + Number(b.price),0);  
+    let d=document.createElement("div");  
+    d.className="card";  
+    if(selectedCustomers.has(i)) d.classList.add("selected");  
+    
+    // Check if image exists, else show first letter
+    let avatarContent = c.image ? `<img src="${c.image}">` : c.name[0];
+
+    d.innerHTML=`  
+      <div class="row">  
+        <div class="avatar">${avatarContent}</div>  
+        <div style="flex:1">  
+          <b style="font-size:16px;">${c.name}</b>  
+          <div style="margin-top:8px;background:#000;border:1px solid #333;padding:8px 10px;border-radius:8px;font-size:12px;color:#ff7300;width:fit-content;font-weight:bold;">  
+            📦 ${c.orders.length} Orders • 💰 ৳${total}  
+          </div>  
+        </div>  
+      </div>`;  
+    longPress(d, ()=>toggleCustomer(i));  
+    d.onclick=()=>{if(selectedCustomers.size>0){toggleCustomer(i);}else{open(i);}};  
+    list.appendChild(d);  
+  });  
+  updateDeleteBar();  
+  updateStats();  
+}  
+
+/* UPDATED showOrders FUNCTION FOR NEW LAYOUT */
+function showOrders(){  
+  let div=document.getElementById("orders");  
+  div.innerHTML="";  
+  let total = 0;  
+  db[current].orders.forEach((o,i)=>{  
+    total += Number(o.price);  
+    let d=document.createElement("div");  
+    d.className="card";  
+    if(selectedOrders.has(i)) d.classList.add("selected");  
+    d.innerHTML=`  
+      <div class="order-content">  
+        <div class="order-left">  
+          <div style="font-weight:bold; font-size:14px;">📦 ${o.desc}</div>  
+          <div style="font-size:12px; margin-top:4px;">💰 <span style="color:#ff7300;font-weight:bold;">৳${o.price}</span></div>
+        </div>  
+        <div class="order-time">${o.time}</div>
+        <div class="order-right">
+          <button class="edit-btn" onclick="editOrder(${i})">Edit</button>  
+        </div>
+      </div>`;  
+    longPress(d, ()=>toggleOrder(i));  
+    d.onclick=()=>{if(selectedOrders.size>0){toggleOrder(i);}};  
+    div.appendChild(d);  
+  });  
+  document.getElementById("summaryBox").innerHTML = `<div class="stats-row"><div class="stat"><h2>${db[current].orders.length}</h2><span>Orders</span></div><div class="stat"><h2>৳${total}</h2><span>Total</span></div></div>`;  
+  updateDeleteBar();  
+}  
+
+// Edit Customer Logic
+function editCustomer(){  
+  document.getElementById("editCustomerNameInput").value = db[current].name;
+  tempImageBase64 = db[current].image || "";
+  
+  if(tempImageBase64) {
+    document.getElementById("editImgPreview").innerHTML = `<img src="${tempImageBase64}">`;
+  } else {
+    document.getElementById("editImgPreview").innerHTML = "Img";
+  }
+  
+  document.getElementById("editCustomerImage").value = "";
+  document.getElementById("customerModal").style.display = "flex";
+}  
+
+function saveCustomerEdit() {
+  let newName = document.getElementById("editCustomerNameInput").value;
+  if(newName) {
+    db[current].name = newName; 
+    db[current].image = tempImageBase64;
+    save(); 
+    document.getElementById("cname").innerText = newName;
+    closeCustomerModal();
+  }
+}
+
+function closeCustomerModal() {
+  document.getElementById("customerModal").style.display = "none";
+}
+
+function editOrder(i){  
+  editingOrderIndex = i;  
+  document.getElementById("orderDesc").value = db[current].orders[i].desc;  
+  document.getElementById("orderPrice").value = db[current].orders[i].price;  
+  document.getElementById("orderModal").style.display = "flex";  
+}  
+
+function saveOrderEdit(){  
+  if(editingOrderIndex !== null){  
+    let d = document.getElementById("orderDesc").value;  
+    let p = document.getElementById("orderPrice").value;  
+    if(d && p){  
+      db[current].orders[editingOrderIndex].desc = d;  
+      db[current].orders[editingOrderIndex].price = p;  
+      editingOrderIndex = null; save(); showOrders(); closeOrderModal();  
+    }  
+  }  
+}  
+
+function closeOrderModal(){document.getElementById("orderModal").style.display = "none";}  
+
+function toggleCustomer(i){selectedCustomers.has(i) ? selectedCustomers.delete(i) : selectedCustomers.add(i); render();}  
+function toggleOrder(i){selectedOrders.has(i) ? selectedOrders.delete(i) : selectedOrders.add(i); showOrders();}  
+
+function deleteSelected(){  
+  if(selectedCustomers.size){db = db.filter((_,i)=>!selectedCustomers.has(i)); selectedCustomers.clear(); save();}  
+  else if(selectedOrders.size){db[current].orders = db[current].orders.filter((_,i)=>!selectedOrders.has(i)); selectedOrders.clear(); save(); showOrders();}  
+}  
+
+function updateDeleteBar(){document.getElementById("deleteBar").style.display = (selectedCustomers.size || selectedOrders.size) ? "block" : "none";}  
+
+function addCustomer(){  
+  let input = document.getElementById("modalName");  
+  let n = input.value;  
+  if(!n) return;  
+  db.push({name:n, image: tempImageBase64, orders:[]});  
+  closeModal();  
+  save();  
+}  
+
+function open(i){current = i; selectedOrders.clear(); show("details"); document.getElementById("cname").innerText = db[i].name; showOrders();}  
+
+function addOrder(){  
+  let d=document.getElementById("desc").value;  
+  let p=document.getElementById("price").value;  
+  if(!d || !p || current === null) return;  
+  let now = new Date().toLocaleString();  
+  db[current].orders.push({desc:d, price:p, time: now});  
+  document.getElementById("desc").value = "";  
+  document.getElementById("price").value = "";  
+  save(); showOrders();  
+}  
+
+function openModal(){
+  tempImageBase64 = ""; // Reset Image
+  document.getElementById("modalName").value = "";
+  document.getElementById("modalImage").value = "";
+  document.getElementById("addImgPreview").innerHTML = "Img";
+  document.getElementById("modal").style.display="flex";
+}  
+
+function closeModal(){document.getElementById("modal").style.display="none";}  
+
+render();  
+</script>  
+</body>  
+</html>
