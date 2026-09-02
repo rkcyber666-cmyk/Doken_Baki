@@ -1,0 +1,1 @@
+Added the Shop Due Khata app with a simple and user-friendly interface. Users can manage customer due, paid amounts and transaction history easily. This update includes the main index.html file and complete app UI.
